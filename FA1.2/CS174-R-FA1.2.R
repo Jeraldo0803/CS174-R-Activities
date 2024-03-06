@@ -1,4 +1,4 @@
-
+##### DATA LOADING #####
 library(readr)
 library(ggplot)
 
@@ -17,4 +17,12 @@ summary(model)
 
 plot(model)
 
+##### DATA PREPROCESSING #####
 
+##### EXPLORATORY DATA ANALYSIS #####
+
+##### MODELLING #####
+
+##### TESTING #####
+
+##### EVALUATION #####

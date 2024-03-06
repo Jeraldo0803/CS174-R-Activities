@@ -1,7 +1,7 @@
 ##### DATA LOADING #####
 library(readr)
 library(ggplot)
-
+#Hans
 setwd("FA1.2\\")
 bank_data<- read_delim("bank-full.csv", delim = ";")
 

@@ -1,9 +1,8 @@
 ##### DATA LOADING #####
 library(readr)
-library(ggplot)
 
 #Set working directory
-setwd("FA1.2\\")
+getwd()
 
 #Retrieve data
 bank_data<- read.csv("bank-full.csv", sep=";") 

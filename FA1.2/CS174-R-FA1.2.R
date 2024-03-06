@@ -2,11 +2,12 @@
 library(readr)
 library(ggplot)
 
+#Set working directory
 setwd("FA1.2\\")
-bank_data<- read_delim("bank-full.csv", delim = ";")
 
+#Retrieve data
+bank_data<- read.csv("bank-full.csv", sep=";") 
 head(bank_data)
-
 str(bank_data)
 
 bank_data$y <- ifelse(bank_data$y == "no", 0, 1)

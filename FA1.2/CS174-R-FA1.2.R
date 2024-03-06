@@ -19,7 +19,7 @@ str(bank_data)
 
 ##### DATA PREPROCESSING #####
 #Check for null values
-
+total_null_val <- sum(colSums(is.na(bank_data)))
 #Convert categorical to numerical
 
 #Remove Outliers

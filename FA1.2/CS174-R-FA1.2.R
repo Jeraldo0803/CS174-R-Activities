@@ -1,9 +1,9 @@
 ##### DATA LOADING #####
 #import necessary libraries
 library(readr)
-
 #get working directory
 getwd()
+setwd('CS174-R-Activities\\FA1.2')
 
 #Retrieve data
 bank_data <- read.csv("bank-full.csv", sep=";")
@@ -38,36 +38,41 @@ str(converted_bank_data)
 head(converted_bank_data)
 
 ##### EXPLORATORY DATA ANALYSIS #####
-#Generate Correlation Matrix of Original Features
+#Generate Correlation Matrix of All features
 corr_matrix <- cor(converted_bank_data)
-#Visualize correlation matrix
-# Visualize the correlation matrix as a heatmap
+
+#Visualize the correlation matrix as a heatmap
 heatmap(corr_matrix,
         symm = TRUE,         # Ensure the heatmap is symmetric
         margins = c(10,10),  # Adjust margins for labels
         main = "Correlation Matrix",  # Title of the plot
         col = colorRampPalette(c("blue", "white", "red"))(100))  # Color scheme
 
-#Calculate Feature Importance
-
-#Remove Unimportant Attributes
-
-#Check Correlation of Important Features
-
-#Count instances of Relevant Features
-#Ex:job_count <- table(bank_data$job)
-#Ex:print(job_count)
-
-#Remove Outliers
-#Create boxplot
+#Check for Outliers
 #Age
-#boxplot(converted_bank_data$age, main = "Boxplot of Age Data", ylab = "Age", col = "yellow")
+boxplot(converted_bank_data$age, main = "Boxplot of Age Data", ylab = "Age", col = "yellow")
 
 #Balance
-#boxplot(converted_bank_data$balance, main = "Boxplot of Balance Data", ylab = "Balance", col = "yellow")
+boxplot(converted_bank_data$balance, main = "Boxplot of Balance Data", ylab = "Balance", col = "yellow")
 
 #Duration
-#boxplot(converted_bank_data$duration, main = "Boxplot of Duration Data", ylab = "Duration", col = "yellow")
+boxplot(converted_bank_data$duration, main = "Boxplot of Duration Data", ylab = "Duration", col = "yellow")
+
+#Data Distribution
+str(converted_bank_data)
+cols_to_plot <- c("age","education_num", "balance", "duration", "campaign","housing_num", "loan_num", "month_num")
+par(mfrow = c(2, 4))
+
+
+for (variable in cols_to_plot) {
+  hist(converted_bank_data[[variable]], main = paste(variable, "Distribution"),
+       xlab = variable, ylab = "Frequency")
+}
+
+par(mfrow = c(1, 1))
+
+#Display Summarized Statistics of each Feature
+summary(converted_bank_data)
 
 ##### MODELLING #####
 

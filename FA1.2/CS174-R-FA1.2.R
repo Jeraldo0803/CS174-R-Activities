@@ -99,7 +99,7 @@ summary(converted_bank_data)
 
 
 
-corr_jobadmin <- cor(converted_bank_data[, c('jobadmin','y_num')])
+corr_jobadmin <- cor(converted_bank_data[, c('jobadmin.','y_num')])
 corr_jobblue_collar <- cor(converted_bank_data[, c('jobblue-collar','y_num')])
 corr_jobentrepreneur <- cor(converted_bank_data[, c('jobentrepreneur','y_num')])
 corr_jobhousemaid <- cor(converted_bank_data[, c('jobhousemaid','y_num')])
@@ -108,7 +108,7 @@ corr_jobretired <- cor(converted_bank_data[, c('jobretired','y_num')])
 corr_jobselfemployed <- cor(converted_bank_data[, c('jobself-employed','y_num')])
 corr_jobservices <- cor(converted_bank_data[, c('jobservices','y_num')])
 corr_jobstudent <- cor(converted_bank_data[, c('jobstudent','y_num')])
-corr_jobtechnician <- cor(converted_bank_data[, c('jobechnician','y_num')])
+corr_jobtechnician <- cor(converted_bank_data[, c('jobtechnician','y_num')])
 corr_jobunemployed <- cor(converted_bank_data[, c('jobunemployed','y_num')])
 corr_jobunknown <- cor(converted_bank_data[, c('jobunknown','y_num')])
 

@@ -123,10 +123,19 @@ Y_test <- converted_bank_data[test_indices, "y_num"]
 
 #model <- lm(output_variable ~ independent_variable1 + independent_variable2, data=bank_data)
 # Fit linear regression model
-model <- lm(converted_bank_data$y_num ~ converted_bank_data$duration + converted_bank_data$age, data = X_train)
+model <- lm(Y_train ~ duration + age, data = X_train)
 
 # Summary of the model
 summary(model)
+
+# Save current graphical parameters
+old_par <- par(mfrow = c(2, 2))
+
+# Generate diagnostic plots
+plot(model)
+
+# Restore previous graphical parameters
+par(old_par)
 
 ##### TESTING #####
 # Make predictions on the test set

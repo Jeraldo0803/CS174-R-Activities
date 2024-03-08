@@ -1,6 +1,7 @@
 ##### DATA LOADING #####
 #import necessary libraries
 library(readr)
+library(caTools)
 library(corrplot)
 #get working directory
 getwd()
@@ -95,12 +96,53 @@ for (variable in cols_to_plot) {
 summary(converted_bank_data)
 
 ##### MODELLING #####
+
+#Train/Test Split
+
+set.seed(1024)
+train <- sample.split(Y = converted_bank_data$y, SplitRatio = 0.7)
+trainset <- subset(converted_bank_data, train == T)
+testset <- subset(converted_bank_data, train == F)
+
+prop.table(table(trainset$y))
+
+prop.table(table(testset$y))
+
 #model <- lm(output_variable ~ independent_variable1 + independent_variable2, data=bank_data)
-#model <- lm(bank_data$y ~ )
+model <- lm(trainset$y ~ trainset$duration + trainset$pdays, data=trainset)
+
+summary(model)
+# Extract independent variables from the test set
+test_input <- testset[, c("duration", "pdays")]
+
+# Make predictions using the model
+predictions <- predict(model, newdata = test_input)
 
 ##### TESTING #####
-
+#predictions <- predict(model, newdata=testset)
 
 ##### EVALUATION #####
+# Example: Calculate evaluation metrics for a regression model
+# Assuming 'predictions' contains the predicted numerical values and 'actual_values' contains the true numerical values
+
+cat("Length of predictions:", length(predictions), "\n")
+cat("Length of testset$y:", length(testset$y), "\n")
+
+
+# Mean Squared Error (MSE)
+mse <- mean((predictions - testset$y)^2)
+cat("Mean Squared Error (MSE):", mse, "\n")
+
+# Root Mean Squared Error (RMSE)
+rmse <- sqrt(mse)
+cat("Root Mean Squared Error (RMSE):", rmse, "\n")
+
+# Mean Absolute Error (MAE)
+mae <- mean(abs(predictions - testset$y))
+cat("Mean Absolute Error (MAE):", mae, "\n")
+
+# R-squared
+rsquared <- 1 - sum((testset$y - predictions)^2) / sum((testset$y - mean(testset$y))^2)
+cat("R-squared:", rsquared, "\n")
 
 

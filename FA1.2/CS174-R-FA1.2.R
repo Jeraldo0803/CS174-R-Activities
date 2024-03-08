@@ -101,37 +101,43 @@ summary(converted_bank_data)
 #Train/Test Split
 
 set.seed(1024)
-train <- sample.split(Y = converted_bank_data$y, SplitRatio = 0.7)
-trainset <- subset(converted_bank_data, train == T)
-testset <- subset(converted_bank_data, train == F)
 
-prop.table(table(trainset$y))
+n_rows <- nrow(converted_bank_data)
 
-prop.table(table(testset$y))
+# Number of rows for the training set (e.g., 70%)
+train_size <- floor(0.7 * n_rows)
+
+# Randomly select indices for the training set
+train_indices <- sample(1:n_rows, train_size, replace = FALSE)
+
+# Create the training set
+X_train <- converted_bank_data[train_indices, -which(names(converted_bank_data) == "y_num")]
+Y_train <- converted_bank_data[train_indices, "y_num"]
+
+# Create the test set (using the remaining indices)
+test_indices <- setdiff(1:n_rows, train_indices)
+X_test <- converted_bank_data[test_indices, -which(names(converted_bank_data) == "y_num")]
+Y_test <- converted_bank_data[test_indices, "y_num"]
+
+#Model Fitting
 
 #model <- lm(output_variable ~ independent_variable1 + independent_variable2, data=bank_data)
-model <- lm(trainset$y ~ trainset$duration + trainset$pdays, data=trainset)
+# Fit linear regression model
+model <- lm(converted_bank_data$y_num ~ converted_bank_data$duration + converted_bank_data$age, data = X_train)
 
+# Summary of the model
 summary(model)
-# Extract independent variables from the test set
-test_input <- testset[, c("duration", "pdays")]
-
-# Make predictions using the model
-predictions <- predict(model, newdata = test_input)
 
 ##### TESTING #####
-#predictions <- predict(model, newdata=testset)
+# Make predictions on the test set
+predictions <- predict(model, newdata = X_test)
+
+# Display the first few predictions
+head(predictions)
 
 ##### EVALUATION #####
-# Example: Calculate evaluation metrics for a regression model
-# Assuming 'predictions' contains the predicted numerical values and 'actual_values' contains the true numerical values
-
-cat("Length of predictions:", length(predictions), "\n")
-cat("Length of testset$y:", length(testset$y), "\n")
-
-
 # Mean Squared Error (MSE)
-mse <- mean((predictions - testset$y)^2)
+mse <- mean((predictions - Y_test)^2)
 cat("Mean Squared Error (MSE):", mse, "\n")
 
 # Root Mean Squared Error (RMSE)
@@ -139,11 +145,11 @@ rmse <- sqrt(mse)
 cat("Root Mean Squared Error (RMSE):", rmse, "\n")
 
 # Mean Absolute Error (MAE)
-mae <- mean(abs(predictions - testset$y))
+mae <- mean(abs(predictions - Y_test))
 cat("Mean Absolute Error (MAE):", mae, "\n")
 
 # R-squared
-rsquared <- 1 - sum((testset$y - predictions)^2) / sum((testset$y - mean(testset$y))^2)
+rsquared <- 1 - sum((Y_test - predictions)^2) / sum((Y_test - mean(Y_test))^2)
 cat("R-squared:", rsquared, "\n")
 
 

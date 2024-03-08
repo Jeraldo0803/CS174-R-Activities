@@ -23,8 +23,8 @@ print(null_values)
 cols_to_convert <- c("job", "marital", "contact", "poutcome")
 one_hot_data <- model.matrix(~ . + 0, data= bank_data[cols_to_convert])
 print(one_hot_data)
-bank_data <- bank_data[, !(names(bank_data) %in% c("job", "marital", "contact", "poutcome"))]
-encoded_bank_data <- cbind(bank_data, one_hot_data)
+bank_data2 <- bank_data[, !(names(bank_data) %in% c("job", "marital", "contact", "poutcome"))]
+encoded_bank_data <- cbind(bank_data2, one_hot_data)
 
 #Label Encoding
 encoded_bank_data$education_num <- as.numeric(factor(encoded_bank_data$education))
@@ -77,7 +77,12 @@ par(mfrow = c(1, 1))
 summary(converted_bank_data)
 
 ##### MODELLING #####
+#model <- lm(output_variable ~ independent_variable1 + independent_variable2, data=bank_data)
+#model <- lm(bank_data$y ~ )
 
 ##### TESTING #####
 
+
 ##### EVALUATION #####
+
+

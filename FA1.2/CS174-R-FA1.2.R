@@ -1,11 +1,9 @@
 ##### DATA LOADING #####
 #import necessary libraries
 library(readr)
+library(corrplot)
 #get working directory
 getwd()
-setwd('CS174-R-Activities\\FA1.2')
-
-#Comment
 
 #Retrieve data
 bank_data <- read.csv("bank-full.csv", sep=";")
@@ -40,38 +38,58 @@ str(converted_bank_data)
 head(converted_bank_data)
 
 ##### EXPLORATORY DATA ANALYSIS #####
-#Generate Correlation Matrix of All features
-corr_matrix <- cor(converted_bank_data)
+#Generate Correlation Matrix
+corr_age <- cor(converted_bank_data[, c('age','y_num')])
+corr_balance <- cor(converted_bank_data[, c('balance','y_num')])
+corr_day <- cor(converted_bank_data[, c('day','y_num')])
+corr_duration <- cor(converted_bank_data[, c('duration','y_num')])
+corr_camp <- cor(converted_bank_data[, c('campaign','y_num')])
+corr_pdays <- cor(converted_bank_data[, c('pdays','y_num')])
+corr_previous <- cor(converted_bank_data[, c('previous','y_num')])
+corr_edu <- cor(converted_bank_data[, c('education_num','y_num')])
+corr_def <- cor(converted_bank_data[, c('default_num','y_num')])
+corr_house <- cor(converted_bank_data[, c('housing_num','y_num')])
+corr_loan <- cor(converted_bank_data[, c('loan_num','y_num')])
+corr_month <- cor(converted_bank_data[, c('month_num','y_num')])
+
+#Create list of correlation matrix and titles
+corr_list <- list(corr_age, corr_balance, corr_day, corr_duration, corr_camp, corr_pdays
+                  , corr_previous, corr_edu, corr_def, corr_house, corr_loan, corr_month)
+title_list <- list("Age V.S. Y", "Balance V.S. Y", "Day V.S. Y", "Duration V.S. Y", "Campaign V.S. Y",
+                   "Pdays V.S. Y", "Previous V.S. Y", "Education V.S. Y", "Default V.S. Y", 
+                   "Housing V.S. Y", "Loan V.S. Y", "Month V.S Y")
+
+#Set the display dimension
+par(mfrow = c(3, 4))
+
+j = 1
 
 #Visualize the correlation matrix as a heatmap
-heatmap(corr_matrix,
-        symm = TRUE,         # Ensure the heatmap is symmetric
-        margins = c(10,10),  # Adjust margins for labels
-        main = "Correlation Matrix",  # Title of the plot
-        col = colorRampPalette(c("blue", "white", "red"))(100))  # Color scheme
-
-#Check for Outliers
-#Age
-boxplot(converted_bank_data$age, main = "Boxplot of Age Data", ylab = "Age", col = "yellow")
-
-#Balance
-boxplot(converted_bank_data$balance, main = "Boxplot of Balance Data", ylab = "Balance", col = "yellow")
-
-#Duration
-boxplot(converted_bank_data$duration, main = "Boxplot of Duration Data", ylab = "Duration", col = "yellow")
+for (i in corr_list) {
+  corrplot(
+    i, 
+    method = "color", 
+    col = colorRampPalette(c("blue", "white", "red"))(20),
+    addCoef.col = "black", 
+    number.cex = 1, 
+    tl.cex = 1, title = title_list[j]
+  )
+  j = j + 1
+}
 
 #Data Distribution
 str(converted_bank_data)
-cols_to_plot <- c("age","education_num", "balance", "duration", "campaign","housing_num", "loan_num", "month_num")
-par(mfrow = c(2, 4))
+cols_to_plot <- c("age", "balance", "day", "duration", "campaign", "pdays",
+                  "previous", "education_num", "default_num", "housing_num", 
+                  "loan_num", "month_num")
 
+# Set the display dimension
+par(mfrow = c(3, 4))
 
 for (variable in cols_to_plot) {
   hist(converted_bank_data[[variable]], main = paste(variable, "Distribution"),
        xlab = variable, ylab = "Frequency")
 }
-
-par(mfrow = c(1, 1))
 
 #Display Summarized Statistics of each Feature
 summary(converted_bank_data)

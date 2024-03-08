@@ -5,6 +5,8 @@ library(readr)
 getwd()
 setwd('CS174-R-Activities\\FA1.2')
 
+#Comment
+
 #Retrieve data
 bank_data <- read.csv("bank-full.csv", sep=";")
 head(bank_data)

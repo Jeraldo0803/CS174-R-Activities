@@ -5,6 +5,7 @@ library(caTools)
 library(corrplot)
 #get working directory
 getwd()
+setwd("FA1.2/")
 
 #Retrieve data
 bank_data <- read.csv("bank-full.csv", sep=";")

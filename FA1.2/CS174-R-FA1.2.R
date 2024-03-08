@@ -32,7 +32,9 @@ encoded_bank_data$housing_num <- as.numeric(factor(encoded_bank_data$housing))
 encoded_bank_data$loan_num <- as.numeric(factor(encoded_bank_data$loan))
 encoded_bank_data$month_num <- as.numeric(factor(encoded_bank_data$month))
 encoded_bank_data$y_num <- as.numeric(factor(encoded_bank_data$y))
+converted_bank_data$y_num <- ifelse(encoded_bank_data$y == "no", 0, 1)
 converted_bank_data <- encoded_bank_data[, !(names(encoded_bank_data) %in% c("education", "default", "housing", "loan", "month", "y"))]
+
 
 #Final Converted Data
 str(converted_bank_data)
@@ -95,12 +97,74 @@ for (variable in cols_to_plot) {
 #Display Summarized Statistics of each Feature
 summary(converted_bank_data)
 
+
+
+corr_jobadmin <- cor(converted_bank_data[, c('jobadmin','y_num')])
+corr_jobblue_collar <- cor(converted_bank_data[, c('jobblue-collar','y_num')])
+corr_jobentrepreneur <- cor(converted_bank_data[, c('jobentrepreneur','y_num')])
+corr_jobhousemaid <- cor(converted_bank_data[, c('jobhousemaid','y_num')])
+corr_jobmanagement <- cor(converted_bank_data[, c('jobmanagement','y_num')])
+corr_jobretired <- cor(converted_bank_data[, c('jobretired','y_num')])
+corr_jobselfemployed <- cor(converted_bank_data[, c('jobself-employed','y_num')])
+corr_jobservices <- cor(converted_bank_data[, c('jobservices','y_num')])
+corr_jobstudent <- cor(converted_bank_data[, c('jobstudent','y_num')])
+corr_jobtechnician <- cor(converted_bank_data[, c('jobechnician','y_num')])
+corr_jobunemployed <- cor(converted_bank_data[, c('jobunemployed','y_num')])
+corr_jobunknown <- cor(converted_bank_data[, c('jobunknown','y_num')])
+
+#Create list of correlation matrix and titles
+corr_list <- list(corr_jobadmin, corr_jobblue_collar, corr_jobentrepreneur, corr_jobhousemaid, corr_jobmanagement, corr_jobretired
+                  , corr_jobselfemployed, corr_jobservices, corr_jobstudent, corr_jobtechnician, corr_jobunemployed, corr_jobunknown)
+title_list <- list("jobadmin V.S. Y", "jobblue_collar V.S. Y", "jobentrepreneur V.S. Y", "jobhousemaid V.S. Y", "jobmanagement V.S. Y",
+                   "jobretired V.S. Y", "jobselfemployed V.S. Y", "jobservices V.S. Y", "jobstudent V.S. Y", 
+                   "jobtechnician V.S. Y", "jobunemployed V.S. Y", "jobunknown V.S Y")
+
+#Set the display dimension
+par(mfrow = c(3, 4))
+
+j = 1
+
+#Visualize the correlation matrix as a heatmap
+for (i in corr_list) {
+  corrplot(
+    i, 
+    method = "color", 
+    col = colorRampPalette(c("blue", "white", "red"))(20),
+    addCoef.col = "black", 
+    number.cex = 1, 
+    tl.cex = 1, title = title_list[j]
+  )
+  j = j + 1
+}
+
+#Data Distribution
+str(converted_bank_data)
+cols_to_plot <- c("age", "balance", "day", "duration", "campaign", "pdays",
+                  "previous", "education_num", "default_num", "housing_num", 
+                  "loan_num", "month_num")
+
+# Set the display dimension
+par(mfrow = c(3, 4))
+
+for (variable in cols_to_plot) {
+  hist(converted_bank_data[[variable]], main = paste(variable, "Distribution"),
+       xlab = variable, ylab = "Frequency")
+}
+
 ##### MODELLING #####
 
 #Train/Test Split
 
+set.seed(123)
+train_indices <- sample(1:nrow(converted_bank_data), 0.7 * nrow(converted_bank_data))
+train_data <- data[train_indices, ]
+test_data <- data[-train_indices, ]
+
+
+
+
 set.seed(1024)
-train <- sample.split(Y = converted_bank_data$y, SplitRatio = 0.7)
+train <- sample.split(Y = converted_bank_data$y_num, SplitRatio = 0.7)
 trainset <- subset(converted_bank_data, train == T)
 testset <- subset(converted_bank_data, train == F)
 
@@ -109,6 +173,8 @@ prop.table(table(trainset$y))
 prop.table(table(testset$y))
 
 #model <- lm(output_variable ~ independent_variable1 + independent_variable2, data=bank_data)
+model <- lm(converted_bank_data$y_num ~ converted_bank_data$duration + converted_bank_data$pdays, data=converted_bank_data)
+
 model <- lm(trainset$y ~ trainset$duration + trainset$pdays, data=trainset)
 
 summary(model)

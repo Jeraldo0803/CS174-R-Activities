@@ -6,6 +6,7 @@ library(corrplot)
 library(ggplot2)
 library(broom)
 library(gridExtra)
+library(survey)
 
 #get working directory
 getwd()
@@ -245,5 +246,7 @@ ggplot(interaction_data, aes(x = duration, y = pred_low, linetype = "Low Balance
   theme_bw()  # Optional for a cleaner look
 
 ##### EVALUATION #####
+library(survey)
 
-
+regTermTest(logistic_model_both, "balance")
+regTermTest(logistic_model_both, "duration")

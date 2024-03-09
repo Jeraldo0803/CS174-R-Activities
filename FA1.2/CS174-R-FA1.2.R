@@ -1,4 +1,27 @@
 ##### DATA LOADING #####
+#Install Libraries if not exist:
+if (!requireNamespace("readr", quietly = TRUE)) {
+  install.packages("readr")
+}
+if (!requireNamespace("caTools", quietly = TRUE)) {
+  install.packages("caTools")
+}
+if (!requireNamespace("corrplot", quietly = TRUE)) {
+  install.packages("corrplot")
+}
+if (!requireNamespace("ggplot2", quietly = TRUE)) {
+  install.packages("ggplot2")
+}
+if (!requireNamespace("broom", quietly = TRUE)) {
+  install.packages("broom")
+}
+if (!requireNamespace("gridExtra", quietly = TRUE)) {
+  install.packages("gridExtra")
+}
+if (!requireNamespace("survey", quietly = TRUE)) {
+  install.packages("survey")
+}
+
 #import necessary libraries
 library(readr)
 library(caTools)
@@ -104,12 +127,10 @@ for (variable in cols_to_plot) {
 #Display Summarized Statistics of each Feature
 summary(converted_bank_data)
 
-#####EXPERIMENTING#####
+
 
 ##### MODELLING #####
-
 #Train/Test Split
-
 set.seed(1024)
 
 n_rows <- nrow(converted_bank_data)
@@ -133,7 +154,6 @@ Y_test <- converted_bank_data[test_indices, "y_num"]
 
 #####Model Fitting#####
 
-#####################
 # Fit logistic regression model including only duration
 logistic_model_duration <- glm(Y_train ~ duration, data = X_train, family = "binomial")
 
@@ -149,7 +169,7 @@ train_predictions_duration <- predict(logistic_model_duration, type = "response"
 # Create a scatter plot of duration vs. predicted probabilities using training data
 plot(X_train$duration, train_predictions_duration, 
      xlab = "Duration", ylab = "Predicted Probability of y_num", 
-     main = "Logistic Regression: Duration vs. Predicted Probability (Training Data)")
+     main = "Duration vs. Predicted Probability (Training Data)")
 
 # Add a line representing the logistic regression model
 lines(X_train$duration, train_predictions_duration, col = "blue")
@@ -162,13 +182,8 @@ predicted_probabilities_duration <- predict(logistic_model_duration, newdata = d
 
 # Plot the logistic function for duration
 plot(X_train$duration, Y_train, pch = 19, xlab = "Duration", ylab = "Probability of y_num",
-     main = "Logistic Regression: Duration vs. Probability of y_num", ylim = c(0, 1))
+     main = "Duration vs. Probability of y_num", ylim = c(0, 1))
 lines(duration_seq, predicted_probabilities_duration, col = "blue")
-
-
-
-
-
 
 ############
 # Fit logistic regression model including only balance
@@ -183,7 +198,7 @@ train_predictions_balance <- predict(logistic_model_balance, type = "response", 
 # Create a scatter plot of balance vs. predicted probabilities using training data
 plot(X_train$balance, train_predictions_balance, 
      xlab = "Balance", ylab = "Predicted Probability of y_num", 
-     main = "Logistic Regression: Balance vs. Predicted Probability (Training Data)")
+     main = "Balance vs. Predicted Probability (Training Data)")
 
 # Add a line representing the logistic regression model
 lines(X_train$balance, train_predictions_balance, col = "blue")
@@ -196,12 +211,11 @@ predicted_probabilities_balance <- predict(logistic_model_balance, newdata = dat
 
 # Plot the logistic function for balance
 plot(X_train$balance, Y_train, pch = 19, xlab = "Balance", ylab = "Probability of y_num",
-     main = "Logistic Regression: Balance vs. Probability of y_num", ylim = c(0, 1))
+     main = "Balance vs. Probability of y_num", ylim = c(0, 1))
 lines(balance_seq, predicted_probabilities_balance, col = "blue")
 
 
-##### BOTH BALANCE AND DURATION #####
-
+############
 # Fit logistic regression model including both duration and balance
 logistic_model_both <- glm(Y_train ~ duration + balance, data = X_train, family = "binomial")
 
@@ -250,3 +264,4 @@ library(survey)
 
 regTermTest(logistic_model_both, "balance")
 regTermTest(logistic_model_both, "duration")
+

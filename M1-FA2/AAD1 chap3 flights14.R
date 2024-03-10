@@ -11,7 +11,8 @@
 library(data.table)
 
 # Set a working directory to store all the related datasets and files.
-setwd("D:/ds")
+getwd()
+setwd("M1-FA2/")
 
 # Import using data.frame read.csv() function and check the time elapsed
 system.time(flights.df <- read.csv("flights14.csv"))

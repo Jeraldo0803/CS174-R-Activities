@@ -1,8 +1,36 @@
 ##### DATA LOADING #####
+#Install Libraries if not exist:
+if (!requireNamespace("readr", quietly = TRUE)) {
+  install.packages("readr")
+}
+if (!requireNamespace("caTools", quietly = TRUE)) {
+  install.packages("caTools")
+}
+if (!requireNamespace("corrplot", quietly = TRUE)) {
+  install.packages("corrplot")
+}
+if (!requireNamespace("ggplot2", quietly = TRUE)) {
+  install.packages("ggplot2")
+}
+if (!requireNamespace("broom", quietly = TRUE)) {
+  install.packages("broom")
+}
+if (!requireNamespace("gridExtra", quietly = TRUE)) {
+  install.packages("gridExtra")
+}
+if (!requireNamespace("survey", quietly = TRUE)) {
+  install.packages("survey")
+}
+
 #import necessary libraries
 library(readr)
 library(caTools)
 library(corrplot)
+library(ggplot2)
+library(broom)
+library(gridExtra)
+library(survey)
+
 #get working directory
 getwd()
 setwd("FA1.2/")
@@ -12,6 +40,8 @@ bank_data <- read.csv("bank-full.csv", sep=";")
 head(bank_data)
 str(bank_data)
 dim(bank_data)
+
+
 
 ##### DATA PREPROCESSING #####
 #Check for null values per column
@@ -29,11 +59,12 @@ encoded_bank_data <- cbind(bank_data2, one_hot_data)
 #Label Encoding
 encoded_bank_data$education_num <- as.numeric(factor(encoded_bank_data$education))
 encoded_bank_data$default_num <- as.numeric(factor(encoded_bank_data$default))
-encoded_bank_data$housing_num <- as.numeric(factor(encoded_bank_data$housing))
-encoded_bank_data$loan_num <- as.numeric(factor(encoded_bank_data$loan))
 encoded_bank_data$month_num <- as.numeric(factor(encoded_bank_data$month))
 encoded_bank_data$y_num <- as.numeric(factor(encoded_bank_data$y))
 converted_bank_data <- encoded_bank_data[, !(names(encoded_bank_data) %in% c("education", "default", "housing", "loan", "month", "y"))]
+converted_bank_data$y_num <- ifelse(encoded_bank_data$y == "no", 0, 1)
+converted_bank_data$housing_num <- ifelse(encoded_bank_data$housing == "no", 0, 1)
+converted_bank_data$loan_num <- ifelse(encoded_bank_data$loan == "no", 0, 1)
 
 #Final Converted Data
 str(converted_bank_data)
@@ -96,10 +127,10 @@ for (variable in cols_to_plot) {
 #Display Summarized Statistics of each Feature
 summary(converted_bank_data)
 
+
+
 ##### MODELLING #####
-
 #Train/Test Split
-
 set.seed(1024)
 
 n_rows <- nrow(converted_bank_data)
@@ -119,46 +150,118 @@ test_indices <- setdiff(1:n_rows, train_indices)
 X_test <- converted_bank_data[test_indices, -which(names(converted_bank_data) == "y_num")]
 Y_test <- converted_bank_data[test_indices, "y_num"]
 
-#Model Fitting
 
-#model <- lm(output_variable ~ independent_variable1 + independent_variable2, data=bank_data)
-# Fit linear regression model
-model <- lm(Y_train ~ duration + age, data = X_train)
 
-# Summary of the model
-summary(model)
+#####Model Fitting#####
 
-# Save current graphical parameters
-old_par <- par(mfrow = c(2, 2))
+# Fit logistic regression model including only duration
+logistic_model_duration <- glm(Y_train ~ duration, data = X_train, family = "binomial")
 
-# Generate diagnostic plots
-plot(model)
+# Summarize the model
+summary(logistic_model_duration)
 
-# Restore previous graphical parameters
-par(old_par)
+# Set plot parameter to display 2 plots side-by-side
+par(mfrow = c(1,2))
 
-##### TESTING #####
-# Make predictions on the test set
-predictions <- predict(model, newdata = X_test)
+# Predict probabilities using the logistic regression model on training data
+train_predictions_duration <- predict(logistic_model_duration, type = "response", newdata = X_train)
 
-# Display the first few predictions
-head(predictions)
+# Create a scatter plot of duration vs. predicted probabilities using training data
+plot(X_train$duration, train_predictions_duration, 
+     xlab = "Duration", ylab = "Predicted Probability of y_num", 
+     main = "Duration vs. Predicted Probability (Training Data)")
+
+# Add a line representing the logistic regression model
+lines(X_train$duration, train_predictions_duration, col = "blue")
+
+# Create a sequence of duration values for prediction
+duration_seq <- seq(min(X_train$duration), max(X_train$duration), length.out = 100)
+
+# Predict probabilities using the logistic regression model on the duration sequence
+predicted_probabilities_duration <- predict(logistic_model_duration, newdata = data.frame(duration = duration_seq), type = "response")
+
+# Plot the logistic function for duration
+plot(X_train$duration, Y_train, pch = 19, xlab = "Duration", ylab = "Probability of y_num",
+     main = "Duration vs. Probability of y_num", ylim = c(0, 1))
+lines(duration_seq, predicted_probabilities_duration, col = "blue")
+
+############
+# Fit logistic regression model including only balance
+logistic_model_balance <- glm(Y_train ~ balance, data = X_train, family = "binomial")
+
+# Summarize the model
+summary(logistic_model_balance)
+
+# Predict probabilities using the logistic regression model on training data
+train_predictions_balance <- predict(logistic_model_balance, type = "response", newdata = X_train)
+
+# Create a scatter plot of balance vs. predicted probabilities using training data
+plot(X_train$balance, train_predictions_balance, 
+     xlab = "Balance", ylab = "Predicted Probability of y_num", 
+     main = "Balance vs. Predicted Probability (Training Data)")
+
+# Add a line representing the logistic regression model
+lines(X_train$balance, train_predictions_balance, col = "blue")
+
+# Create a sequence of balance values for prediction
+balance_seq <- seq(min(X_train$balance), max(X_train$balance), length.out = 100)
+
+# Predict probabilities using the logistic regression model on the balance sequence
+predicted_probabilities_balance <- predict(logistic_model_balance, newdata = data.frame(balance = balance_seq), type = "response")
+
+# Plot the logistic function for balance
+plot(X_train$balance, Y_train, pch = 19, xlab = "Balance", ylab = "Probability of y_num",
+     main = "Balance vs. Probability of y_num", ylim = c(0, 1))
+lines(balance_seq, predicted_probabilities_balance, col = "blue")
+
+
+############
+# Fit logistic regression model including both duration and balance
+logistic_model_both <- glm(Y_train ~ duration + balance, data = X_train, family = "binomial")
+
+# Summarize the model
+summary(logistic_model_both)
+
+# Predict probabilities using the logistic regression model on training data
+train_predictions_both <- predict(logistic_model_both, type = "response", newdata = X_train)
+
+par(mfrow = c(1,2))
+
+# Plot the logistic function for duration
+plot(X_train$duration, Y_train, pch = 19, xlab = "Duration", ylab = "Probability of y_num",
+     main = "Duration vs. Probability of y_num", ylim = c(0, 1))
+lines(duration_seq, predicted_probabilities_duration, col = "blue")
+
+# Plot the logistic function for balance
+plot(X_train$balance, Y_train, pch = 19, xlab = "Balance", ylab = "Probability of y_num",
+     main = "Balance vs. Probability of y_num", ylim = c(0, 1))
+lines(balance_seq, predicted_probabilities_balance, col = "blue")
+
+# Create a new data frame for plotting
+interaction_data <- expand.grid(duration = seq(min(X_train$duration), max(X_train$duration), length.out = 100), 
+                                balance = c(min(X_train$balance), max(X_train$balance)))
+
+# Predict probabilities for each combination of duration and balance
+interaction_data$pred_low <- predict(logistic_model_both, newdata = interaction_data, type = "response")
+
+# Repeat prediction with a different intercept (assuming balance affects intercept)
+interaction_data$balance <- interaction_data$balance + 1  # Adjust for intercept shift (modify as needed)
+interaction_data$pred_high <- predict(logistic_model_both, newdata = interaction_data, type = "response")
+
+# Reset balance to original values
+interaction_data$balance <- interaction_data$balance - 1
+
+# Use the predicted probabilities directly in ggplot
+ggplot(interaction_data, aes(x = duration, y = pred_low, linetype = "Low Balance")) +
+  geom_line() +
+  geom_line(aes(x = duration, y = pred_high, linetype = "High Balance")) +
+  labs(x = "Duration", y = "Predicted Probability", linetype = "Balance") +
+  ggtitle("Interaction Plot for Logistic Regression Model") +
+  theme_bw()  # Optional for a cleaner look
 
 ##### EVALUATION #####
-# Mean Squared Error (MSE)
-mse <- mean((predictions - Y_test)^2)
-cat("Mean Squared Error (MSE):", mse, "\n")
+library(survey)
 
-# Root Mean Squared Error (RMSE)
-rmse <- sqrt(mse)
-cat("Root Mean Squared Error (RMSE):", rmse, "\n")
-
-# Mean Absolute Error (MAE)
-mae <- mean(abs(predictions - Y_test))
-cat("Mean Absolute Error (MAE):", mae, "\n")
-
-# R-squared
-rsquared <- 1 - sum((Y_test - predictions)^2) / sum((Y_test - mean(Y_test))^2)
-cat("R-squared:", rsquared, "\n")
-
+regTermTest(logistic_model_both, "balance")
+regTermTest(logistic_model_both, "duration")
 

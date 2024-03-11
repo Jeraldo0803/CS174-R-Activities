@@ -132,6 +132,8 @@ flights.dt[carrier == "AA", .N, by = .(origin, dest)][order(origin, -dest)]
 # by Grouping Variables can also be expressions.
 flights.dt[, .N, .(dep_delay>0, arr_delay>0)]
 
+# Flights that arrived early AND on time
+flights.dt[, .N, .(dep_delay>0, arr_delay>=0)]
 
 # ========== END ===============================================================
 

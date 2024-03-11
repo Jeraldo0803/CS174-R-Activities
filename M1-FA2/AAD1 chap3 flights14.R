@@ -9,6 +9,9 @@
 
 
 library(data.table)
+library(dplyr)
+library(magrittr)
+
 
 # Set a working directory to store all the related datasets and files.
 getwd()
@@ -53,7 +56,7 @@ flights.dt[1:3]
 
 # df way: Remember the dataset name$col and comma
 # From Quick-R turorial: https://www.statmethods.net/management/sorting.html
-ans.df <- flights.df[order(flights.df$origin, -flights.df$dest),]
+ans.df <- flights.df %>% arrange(origin, desc(dest))
 
 # dt way:
 ans.dt <- flights.dt[order(origin, -dest)]

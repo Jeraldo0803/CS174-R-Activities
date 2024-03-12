@@ -13,3 +13,4 @@ null_count <- sapply(parishousing.df, function(x) sum(is.na(x)))
 print(null_count)
 
 
+print("Nuvggagawen")

@@ -2,6 +2,9 @@ library(data.table)
 library(caret)
 library(rpart)
 library(rpart.plot)
+library(corrplot)
+library(ggcorrplot)
+library(ISLR)
 
 setwd("M1-SA/")
 getwd()
@@ -12,7 +15,14 @@ parishousing.df <- read.csv("ParisHousingClass.csv")
 null_count <- sapply(parishousing.df, function(x) sum(is.na(x)))
 print(null_count)
 
-# Correlation Matrix
+#Change Category "Basic" to 0, "Luxury" to 1
+parishousing.df$category <- ifelse(parishousing.df$category == "Basic", 0, 1)
+
+cor(parishousing.df)
+ggcorrplot(cor(parishousing.df))
+
+# Revert Dependent Variable to String for Display
+parishousing.df$category <- ifelse(parishousing.df$category == 0, "Basic", "Luxury")
 
 ##### MODELLING #####
 #Train/Test Split
@@ -47,7 +57,6 @@ par(xpd = NA) # otherwise on some devices the text is clipped
 rpart.plot(model_fit,
            type = 4, # 
            extra = 1, # this argument shows all observations
-           cp = 0.1
            )
 
 text(model_fit, digits = 2)
@@ -71,6 +80,8 @@ prp(pruned_tree,
 rpart.plot(pruned_tree, type=4, extra=1)
 
 #use pruned tree to predict salary of this player
-predict(pruned_tree, newdata=X_test)
+pred <- predict(model_fit, newdata=X_test, type="class")
+
+confusionMatrix(X_test, pred)
 
 

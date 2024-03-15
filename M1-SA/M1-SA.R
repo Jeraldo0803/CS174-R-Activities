@@ -4,9 +4,8 @@ library(rpart)
 library(rpart.plot)
 library(corrplot)
 library(ggcorrplot)
-library(ISLR)
 
-#setwd("M1-SA/")
+setwd("M1-SA/")
 getwd()
 
 parishousing.df <- read.csv("ParisHousingClass.csv")
@@ -46,7 +45,6 @@ X_test <- parishousing.df[test_indices, -which(names(parishousing.df) == "catego
 Y_test <- parishousing.df[test_indices, "category"]
 
 # Model Fitting
-# rpart(formula, data=, method=, control=)
 
 model_fit <- rpart(Y_train ~., 
                            data= X_train,
@@ -55,8 +53,8 @@ model_fit <- rpart(Y_train ~.,
 par(xpd = NA) # otherwise on some devices the text is clipped
 
 rpart.plot(model_fit,
-           type = 4, # 
-           extra = 1, # this argument shows all observations
+           type = 4,
+           extra = 1, 
            )
 
 #text(model_fit, digits = 2)
@@ -65,15 +63,13 @@ printcp(model_fit)
 
 plotcp(model_fit)
 
-summary(model_fit)
-
 model_summary <- summary(model_fit)
 
 #use fitted model to predict if Basic or Luxury
 pred <- predict(model_fit, newdata=X_test, type="class")
 
 # Create a mapping to define numeric values for factor levels
-mapping <- c("Luxury" = 1, "Basic" = 0)
+mapping <- c("Basic" = 0, "Luxury" = 1)
 
 # Convert factor levels to numeric using the replace function
 pred_numeric <- factor(pred, labels = mapping)

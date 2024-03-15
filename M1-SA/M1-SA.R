@@ -6,7 +6,7 @@ library(corrplot)
 library(ggcorrplot)
 library(ISLR)
 
-setwd("M1-SA/")
+#setwd("M1-SA/")
 getwd()
 
 parishousing.df <- read.csv("ParisHousingClass.csv")
@@ -59,7 +59,7 @@ rpart.plot(model_fit,
            extra = 1, # this argument shows all observations
            )
 
-text(model_fit, digits = 2)
+#text(model_fit, digits = 2)
 
 printcp(model_fit)
 
@@ -67,21 +67,20 @@ plotcp(model_fit)
 
 summary(model_fit)
 
-best <- model_fit$cptable[which.min(model_fit$cptable[,"xerror"]),"CP"]
+model_summary <- summary(model_fit)
 
-pruned_tree <- prune(model_fit, cp=best)
-
-prp(pruned_tree,
-    faclen=0, #use full names for factor labels
-    extra=1, #display number of obs. for each terminal node
-    roundint=F, #don't round to integers in output
-    digits=5) #display 5 decimal places in output
-
-rpart.plot(pruned_tree, type=4, extra=1)
-
-#use pruned tree to predict salary of this player
+#use fitted model to predict if Basic or Luxury
 pred <- predict(model_fit, newdata=X_test, type="class")
 
-confusionMatrix(X_test, pred)
+# Create a mapping to define numeric values for factor levels
+mapping <- c("Luxury" = 1, "Basic" = 0)
 
+# Convert factor levels to numeric using the replace function
+pred_numeric <- factor(pred, labels = mapping)
+Y_test_numeric <- factor(Y_test, labels = mapping)
+
+class(pred_numeric)
+class(Y_test_numeric)
+
+confusionMatrix(pred_numeric, Y_test_numeric)
 
